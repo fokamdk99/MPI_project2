@@ -1,4 +1,7 @@
-﻿namespace MPI.project2.Data;
+﻿using MPI.Project2.Data;
+using MPI.project2.Erlang;
+
+namespace MPI.project2.Data;
 
 public class General
 {
@@ -12,8 +15,10 @@ public class General
     public int J { get; set; } // liczba urzadzen transkodujacych
     public int Lambda { get; set; } // intensywnosc naplywu [liczba zgloszen/s]
     public int Mi { get; set; } // sredni czas obslugi zgloszenia [s]
+    public List<ErlangTraffic> ErlangTable { get; set; }
 
     public List<Content> Contents { get; set; }
+    public List<Profile> Profiles { get; set; }
 
     public General()
     {
@@ -21,5 +26,7 @@ public class General
         Ksi = new List<short>();
         X = new List<short>();
         Contents = new List<Content>();
+        Profiles = new List<Profile>();
+        ErlangTable = new List<ErlangTraffic>();
     }
 }

@@ -16,7 +16,7 @@ public class VideoDimensioning : IVideoDimensioning
     {
         float storageCost = 0;
 
-        var profileCount = data.Contents.Select(t => t.Profiles.Count).Sum();
+        var profileCount = data.Profiles.Count;
         var n = data.Contents.Count * profileCount;
         for (var i = 0; i < n; i++)
         {
