@@ -29,7 +29,7 @@ public class FileHandler : IFileHandler
         data.Contents = contents;
         data.Profiles = profiles;
         data.ErlangTable = erlangTable;
-        
+
         return data;
     }
 
@@ -38,12 +38,14 @@ public class FileHandler : IFileHandler
         return File.ReadLines(filePath);
     }
 
-    private General ReadGeneralData(IEnumerable<string> lines)
+    private static General ReadGeneralData(IEnumerable<string> lines)
     {
         var values = lines.ElementAt(1).Split(';');
-        var data = new General();
-        data.Delta = Convert.ToInt32(values.ElementAt(0));
-        data.Gamma = Convert.ToInt32(values.ElementAt(1));
+        var data = new General
+        {
+            Delta = Convert.ToInt32(values.ElementAt(0)),
+            Gamma = Convert.ToInt32(values.ElementAt(1))
+        };
 
         return data;
     }
@@ -72,8 +74,9 @@ public class FileHandler : IFileHandler
         {
             var values = line.Split(';');
             var profile = new Profile(Convert.ToInt32(values.ElementAt(0)),
-                float.Parse(values.ElementAt(1)),
-                Convert.ToInt32(values.ElementAt(2)));
+                Convert.ToInt32(values.ElementAt(1)),
+                float.Parse(values.ElementAt(2)),
+                Convert.ToInt32(values.ElementAt(3)));
             profiles.Add(profile);
         }
         

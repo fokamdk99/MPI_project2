@@ -23,7 +23,7 @@ public class ErlangModel : IErlangModel
         Traffic = traffic;
     }
     
-    public List<Tuple<float, short>> CalculateBlockingProbabilities(short round) // begin recursion by passing round = 1
+    public List<Tuple<float, short>> CalculateBlockingProbabilities(short round = 1) // begin recursion by passing round = 1
     {
         var blockingProbability = 
             Traffic * BlockingProbabilities.ElementAt(round - 1).Item1 / 

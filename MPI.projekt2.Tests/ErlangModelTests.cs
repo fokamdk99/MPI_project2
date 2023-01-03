@@ -7,12 +7,13 @@ using MPI.project2.VideoDimensioningMethod;
 
 namespace MPI.projekt2.Tests;
 
-public class VideoDimensioningTests
+public class ErlangModelTests
 {
     private IFileHandler? _fileHandler;
+    private IErlangModel? _erlangModel;
     private IVideoDimensioning? _videoDimensioning;
     private General? Data { get; set; } 
-
+    
     [SetUp]
     public void Setup()
     {
@@ -25,32 +26,25 @@ public class VideoDimensioningTests
         var serviceProvider = services.BuildServiceProvider();
 
         _fileHandler = serviceProvider.GetRequiredService<IFileHandler>();
+        _erlangModel = serviceProvider.GetRequiredService<IErlangModel>();
         _videoDimensioning = serviceProvider.GetRequiredService<IVideoDimensioning>();
         Data = _fileHandler.ReadDataFromFile();
+        Data.Lambda = 1;
     }
 
     [Test]
-    public void CalculateCostFunction()
-    {
-        Data!.X = GenerateTestX(Data.Profiles.Count);
-        var methodInfo = typeof(VideoDimensioning).GetMethod("CalculateCostFunction",
-            BindingFlags.NonPublic | BindingFlags.Instance);
-        object[] parameters = { Data };
-        var result = methodInfo!.Invoke(_videoDimensioning!, parameters);
-        Assert.Pass();
-    }
-
-    [Test]
-    public void CalculateTraffic()
+    public void CalculateBlockingProbabilities()
     {
         Data!.X = GenerateTestX(Data.Profiles.Count);
         var methodInfo = typeof(VideoDimensioning).GetMethod("CalculateTraffic",
             BindingFlags.NonPublic | BindingFlags.Static);
         object[] parameters = { Data };
-        var result = methodInfo!.Invoke(_videoDimensioning!, parameters);
-        Assert.Pass();
+        var traffic = methodInfo!.Invoke(_videoDimensioning!, parameters);
+        _erlangModel!.SetErlangModel(0.99f, float.Parse(traffic!.ToString()));
+        var blockingProbabilities = _erlangModel.CalculateBlockingProbabilities();
+        Assert.That(blockingProbabilities.Last().Item1, Is.LessThan(1 - 0.99f));
     }
-
+    
     private static List<short> GenerateTestX(int numberOfProfiles)
     {
         var random = new Random();

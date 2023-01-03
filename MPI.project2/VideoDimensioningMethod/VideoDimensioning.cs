@@ -31,8 +31,11 @@ public class VideoDimensioning : IVideoDimensioning
 
     private static float CalculateTraffic(General data)
     {
-        var traffic = data.X.Select((x, i) => 
-            x * data.Contents.ElementAt(i).Popularity * data.Contents.ElementAt(i).ContentLength).Sum();
+        var traffic = data.Profiles.Select((p, i) => 
+            data.X.ElementAt(i) * 
+            data.Contents.ElementAt(p.ProfileId-1).Popularity * 
+            data.Contents.ElementAt(p.ProfileId-1).ContentLength).Sum();
+        
         return data.Lambda * traffic;
     }
 
@@ -40,7 +43,7 @@ public class VideoDimensioning : IVideoDimensioning
     {
         var traffic = CalculateTraffic(data);
         _erlang.SetErlangModel(data.Eta, traffic);
-        var blockingProbabilities = _erlang.CalculateBlockingProbabilities(1);
+        var blockingProbabilities = _erlang.CalculateBlockingProbabilities();
         Console.WriteLine($"Number of devices needed to for the system to be available {data.Eta}% of the time " +
                           $"is {blockingProbabilities.Last().Item2}. Calculated blocking probability is " +
                           $"{blockingProbabilities.Last().Item1}");
