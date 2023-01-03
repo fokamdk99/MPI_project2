@@ -12,15 +12,13 @@ public class VideoDimensioning : IVideoDimensioning
         _erlang = erlang;
     }
 
-    public float CalculateCostFunction(General data)
+    private float CalculateCostFunction(General data)
     {
         float storageCost = 0;
-
-        var profileCount = data.Profiles.Count;
-        var n = data.Contents.Count * profileCount;
-        for (var i = 0; i < n; i++)
+        
+        foreach(var item in data.Profiles.Select((value, index) => new {value, index}))
         {
-            storageCost += (1 - data.X.ElementAt(i))  * data.Contents.ElementAt(i).ContentLength;
+            storageCost += (1 - data.X.ElementAt(item.index))  * item.value.Size;
         }
 
         storageCost *= data.Delta;
@@ -31,7 +29,7 @@ public class VideoDimensioning : IVideoDimensioning
         return storageCost + transcodingCost;
     }
 
-    private float CalculateTraffic(General data)
+    private static float CalculateTraffic(General data)
     {
         var traffic = data.X.Select((x, i) => 
             x * data.Contents.ElementAt(i).Popularity * data.Contents.ElementAt(i).ContentLength).Sum();

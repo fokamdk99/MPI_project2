@@ -10,7 +10,7 @@ public class FileHandler : IFileHandler
     public string ErlangTableFile => "erlang_table.csv";
     public string GeneralDataFile => "general.csv";
     
-    public General ReadDataFromFile(string fileName)
+    public General ReadDataFromFile()
     {
         var workingDirectory = Directory.GetCurrentDirectory();
         var fileDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
@@ -83,7 +83,7 @@ public class FileHandler : IFileHandler
     private static List<ErlangTraffic> ReadErlangTable(IEnumerable<string> lines)
     {
         var data = lines.ToList();
-        var blockingProbabilities = data.ElementAt(0).Split(';').Select(float.Parse);
+        var blockingProbabilities = data.ElementAt(0).Split(';').Skip(1).Select(float.Parse);
         var erlangTable = MapProbabilityToAccessibility(blockingProbabilities);
         foreach (var line in data.Skip(1))
         {
@@ -105,36 +105,18 @@ public class FileHandler : IFileHandler
         var data = new List<ErlangTraffic>();
         foreach (var probability in blockingProbabilities)
         {
-            Accessibility accessibility;
-            switch (probability)
+            var accessibility = probability switch
             {
-                case 0.01f:
-                    accessibility = Accessibility.P9999;
-                    break;
-                case 0.05f:
-                    accessibility = Accessibility.P9995;
-                    break;
-                case 0.1f:
-                    accessibility = Accessibility.P999;
-                    break;
-                case 0.5f:
-                    accessibility = Accessibility.P995;
-                    break;
-                case 1f:
-                    accessibility = Accessibility.P99;
-                    break;
-                case 2f:
-                    accessibility = Accessibility.P98;
-                    break;
-                case 5f:
-                    accessibility = Accessibility.P95;
-                    break;
-                case 10f:
-                    accessibility = Accessibility.P90;
-                    break;
-                default:
-                    throw new ArgumentException($"{probability} could not be mapped");
-            }
+                0.01f => Accessibility.P9999,
+                0.05f => Accessibility.P9995,
+                0.1f => Accessibility.P999,
+                0.5f => Accessibility.P995,
+                1f => Accessibility.P99,
+                2f => Accessibility.P98,
+                5f => Accessibility.P95,
+                10f => Accessibility.P90,
+                _ => throw new ArgumentException($"{probability} could not be mapped")
+            };
 
             data.Add(new ErlangTraffic(accessibility));
         }
