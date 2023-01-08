@@ -44,8 +44,14 @@ public class FileHandler : IFileHandler
         var data = new General
         {
             Delta = Convert.ToInt32(values.ElementAt(0)),
-            Gamma = Convert.ToInt32(values.ElementAt(1))
+            Gamma = Convert.ToInt32(values.ElementAt(1)),
+            Lambda = Convert.ToInt32(values.ElementAt(2))
         };
+
+        var blockingProbability = Convert.ToDecimal(values.ElementAt(3));
+
+        data.Eta = 100 - blockingProbability;
+        data.Accessibility = MapAccessibility(blockingProbability);
 
         return data;
     }
@@ -108,22 +114,41 @@ public class FileHandler : IFileHandler
         var data = new List<ErlangTraffic>();
         foreach (var probability in blockingProbabilities)
         {
-            var accessibility = probability switch
-            {
-                0.01f => Accessibility.P9999,
-                0.05f => Accessibility.P9995,
-                0.1f => Accessibility.P999,
-                0.5f => Accessibility.P995,
-                1f => Accessibility.P99,
-                2f => Accessibility.P98,
-                5f => Accessibility.P95,
-                10f => Accessibility.P90,
-                _ => throw new ArgumentException($"{probability} could not be mapped")
-            };
-
-            data.Add(new ErlangTraffic(accessibility));
+            data.Add(new ErlangTraffic(MapAccessibility(probability)));
         }
         
         return data;
+    }
+
+    private static Accessibility MapAccessibility(float eta)
+    {
+        return eta switch
+        {
+            0.01f => Accessibility.P9999,
+            0.05f => Accessibility.P9995,
+            0.1f => Accessibility.P999,
+            0.5f => Accessibility.P995,
+            1f => Accessibility.P99,
+            2f => Accessibility.P98,
+            5f => Accessibility.P95,
+            10f => Accessibility.P90,
+            _ => throw new ArgumentException($"{eta} could not be mapped")
+        };
+    }
+    
+    private static Accessibility MapAccessibility(decimal eta)
+    {
+        return eta switch
+        {
+            (decimal)0.01 => Accessibility.P9999,
+            (decimal)0.05 => Accessibility.P9995,
+            (decimal)0.1 => Accessibility.P999,
+            (decimal)0.5 => Accessibility.P995,
+            1 => Accessibility.P99,
+            2 => Accessibility.P98,
+            5 => Accessibility.P95,
+            10 => Accessibility.P90,
+            _ => throw new ArgumentException($"{eta} could not be mapped")
+        };
     }
 }

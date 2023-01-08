@@ -7,13 +7,13 @@ public class Profile
     public float Size { get; set; } // unit: GB
     public int ProfileQuality { get; set; }
 
-    public Profile(int contentId,
-        int profileId, 
+    public Profile(int profileId,
+        int contentId, 
         float size, 
         int profileQuality)
     {
-        ContentId = contentId;
         ProfileId = profileId;
+        ContentId = contentId;
         Size = size;
         ProfileQuality = profileQuality;
     }

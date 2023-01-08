@@ -5,7 +5,7 @@ namespace MPI.project2.Data;
 public class ErlangTraffic
 {
     public Accessibility Accessibility { get; set; }
-    public List<Tuple<short, float>> Traffic { get; set; }
+    public List<Tuple<short, float>> Traffic { get; set; } // liczba urzadzen, ruch
 
     public ErlangTraffic()
     {

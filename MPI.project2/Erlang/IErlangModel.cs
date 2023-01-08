@@ -2,6 +2,6 @@
 
 public interface IErlangModel
 {
-    List<Tuple<float, short>> CalculateBlockingProbabilities(short round = 1);
-    void SetErlangModel(float eta, float traffic);
+    List<Tuple<decimal, short>> CalculateBlockingProbabilities(short round = 1);
+    void SetErlangModel(decimal eta, decimal traffic);
 }

@@ -4,5 +4,6 @@
     &lt;TestId&gt;NUnit3x::2B91FFCB-A3A5-404D-A414-F748634F872D::net7.0::MPI.projekt2.Tests.VideoDimensioningTests.CalculateCostFunction&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::2B91FFCB-A3A5-404D-A414-F748634F872D::net7.0::MPI.projekt2.Tests.VideoDimensioningTests.CalculateTraffic&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::2B91FFCB-A3A5-404D-A414-F748634F872D::net7.0::MPI.projekt2.Tests.ErlangModelTests.CalculateBlockingProbabilities&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::2B91FFCB-A3A5-404D-A414-F748634F872D::net7.0::MPI.projekt2.Tests.PermutationsGeneratorTests.PermutationsGenerator_ShouldGenerateAllPossiblePermutations&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

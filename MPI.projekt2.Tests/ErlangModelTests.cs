@@ -40,12 +40,13 @@ public class ErlangModelTests
             BindingFlags.NonPublic | BindingFlags.Static);
         object[] parameters = { Data };
         var traffic = methodInfo!.Invoke(_videoDimensioning!, parameters);
-        _erlangModel!.SetErlangModel(0.99f, float.Parse(traffic!.ToString()));
+        Assert.That(traffic, Is.Not.Null);
+        _erlangModel!.SetErlangModel((decimal)0.99, Convert.ToDecimal(traffic!.ToString()));
         var blockingProbabilities = _erlangModel.CalculateBlockingProbabilities();
         Assert.That(blockingProbabilities.Last().Item1, Is.LessThan(1 - 0.99f));
     }
     
-    private static List<short> GenerateTestX(int numberOfProfiles)
+    private static IEnumerable<short> GenerateTestX(int numberOfProfiles)
     {
         var random = new Random();
 
