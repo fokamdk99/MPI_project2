@@ -21,6 +21,8 @@ public class ErlangModel : IErlangModel
     {
         Eta = eta;
         Traffic = traffic;
+        BlockingProbabilities.Clear();
+        BlockingProbabilities.Add(new Tuple<decimal, short>(1, 0));
     }
     
     public List<Tuple<decimal, short>> CalculateBlockingProbabilities(short round = 1) // begin recursion by passing round = 1

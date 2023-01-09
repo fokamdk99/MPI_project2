@@ -1,9 +1,20 @@
-﻿using System.Diagnostics;
+﻿using MPI.project2.Data;
 
 namespace MPI.project2.Utilities;
 
-public static class PermutationsGenerator
+public class PermutationsGenerator : IPermutationsGenerator
 {
+    private IEnumerable<int> HighestQualityProfiles { get; set; }
+    public PermutationsGenerator()
+    {
+        HighestQualityProfiles = new List<int>();
+    }
+
+    public void SetPermutationsGenerator(General data)
+    {
+        HighestQualityProfiles = GetHighestQualityProfiles(data);
+    }
+    
     private static IEnumerable<short> ConvertBase(int n, IReadOnlyList<int> possibleValues,
         int numberOfPossibleValues, int arrayLength)
     {
@@ -18,12 +29,37 @@ public static class PermutationsGenerator
         return results;
     }
     
-    public static IEnumerable<IEnumerable<short>> GeneratePermutations(int []possibleValues, int numberOfPossibleValues, int arrayLength)
+    public IEnumerable<IEnumerable<short>> GeneratePermutations(int []possibleValues, int numberOfPossibleValues, int arrayLength)
     {
-        for (var i = 0;
+        for (int i = 0;
              i < (int)Math.Pow(numberOfPossibleValues, arrayLength); i++)
         {
-            yield return ConvertBase(i, possibleValues, numberOfPossibleValues, arrayLength);
+            var permutation = ConvertBase(i, possibleValues, numberOfPossibleValues, arrayLength).ToList();
+            foreach (var index in HighestQualityProfiles)
+            {
+                permutation[index] = 0;
+            }
+
+            yield return permutation;
+            
+            //yield return ConvertBase(i, possibleValues, numberOfPossibleValues, arrayLength);
         }
+    }
+    
+    private static IEnumerable<int> GetHighestQualityProfiles(General data)
+    {
+        var highestQualityProfiles = data.Profiles
+            .Select((p, profileIndex) => new
+            {
+                Profile = p,
+                ProfileIndex = profileIndex
+                
+            })
+            .GroupBy(c => c.Profile.ContentId)
+            .Select(g => g.OrderByDescending(o => o.Profile.Size))
+            .Select(t => t.First().ProfileIndex)
+            .ToList();
+
+        return highestQualityProfiles;
     }
 }

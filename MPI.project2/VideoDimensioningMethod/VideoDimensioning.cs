@@ -1,5 +1,6 @@
 ﻿using MPI.project2.Data;
 using MPI.project2.Erlang;
+using MPI.project2.FileReader;
 using MPI.project2.Utilities;
 
 namespace MPI.project2.VideoDimensioningMethod;
@@ -7,10 +8,17 @@ namespace MPI.project2.VideoDimensioningMethod;
 public class VideoDimensioning : IVideoDimensioning
 {
     private readonly IErlangModel _erlang;
-
-    public VideoDimensioning(IErlangModel erlang)
+    private readonly IFileHandler _fileHandler;
+    private readonly IPermutationsGenerator _permutationsGenerator;
+    private GeneralResult _generalResult;
+    public VideoDimensioning(IErlangModel erlang, 
+        IFileHandler fileHandler, 
+        IPermutationsGenerator permutationsGenerator)
     {
         _erlang = erlang;
+        _fileHandler = fileHandler;
+        _permutationsGenerator = permutationsGenerator;
+        _generalResult = new GeneralResult();
     }
 
     private float CalculateCostFunction(General data)
@@ -23,8 +31,7 @@ public class VideoDimensioning : IVideoDimensioning
         }
 
         storageCost *= data.Delta;
-
-        //var transcodingCost = data.Epsilon.Select((t, i) => t * data.Ksi.ElementAt(i)).Sum();
+        
         float transcodingCost = data.Ksi;
         transcodingCost *= data.Gamma;
         
@@ -43,34 +50,56 @@ public class VideoDimensioning : IVideoDimensioning
 
     public void Run(General data)
     {
-        var permutations = new List<IEnumerable<short>> { GenerateTestX(data.Profiles.Count) };
-        //var permutations = GeneratePermutations(data);
+        _permutationsGenerator.SetPermutationsGenerator(data);
+        //var permutations = new List<IEnumerable<short>> { GenerateTestX(data.Profiles.Count) };
+        
+        var permutations = GeneratePermutations(data);
 
         foreach (var permutation in permutations)
         {
-            data.X = permutation.ToList();
-            var traffic = CalculateTraffic(data);
-            _erlang.SetErlangModel(data.Eta, traffic);
-            var blockingProbabilities = _erlang.CalculateBlockingProbabilities();
-            var result = blockingProbabilities.Last();
-            Console.WriteLine($"Number of devices needed for the system to be available {data.Eta}% of the time " +
-                              $"is {result.Item2}. Calculated blocking probability is " +
-                              $"{result.Item1}");
-
-            var erlangColumn =
-                data.ErlangTable
-                    .SingleOrDefault(x => x.Accessibility == data.Accessibility)?.Traffic
-                    .SingleOrDefault(p => p.Item1 == result.Item2);
-            
-            data.Ksi = result.Item2;
-            data.Zeta = erlangColumn!.Item2;
-
-            var cost = CalculateCostFunction(data);
-            
-            Console.WriteLine($"Calculated cost function is {cost}");
-            Console.WriteLine($"Erlang column: {erlangColumn.Item1}, {erlangColumn.Item2}");
-            Console.WriteLine($"Calculated traffic: {traffic}");
+            _generalResult = CalculateResult(data, permutation);
         }
+        
+        _generalResult.SetGeneralResult(data.Delta,
+            data.Gamma,
+            data.Eta,
+            data.Lambda);
+        
+        _fileHandler.WriteResultsToFile(_generalResult, data);
+    }
+
+    private GeneralResult CalculateResult(General data, IEnumerable<short> permutation)
+    {
+        data.X = permutation.ToList();
+        var traffic = CalculateTraffic(data);
+        _erlang.SetErlangModel(data.Eta, traffic);
+        var blockingProbabilities = _erlang.CalculateBlockingProbabilities();
+        var blockingProbability = blockingProbabilities.Last();
+
+        var erlangColumn =
+            data.ErlangTable
+                .SingleOrDefault(x => x.Accessibility == data.Accessibility)?.Traffic
+                .SingleOrDefault(p => p.Item1 == blockingProbability.Item2);
+            
+        data.Ksi = blockingProbability.Item2;
+        data.Zeta = erlangColumn!.Item2;
+
+        var cost = CalculateCostFunction(data);
+
+        var result = new Result(cost, erlangColumn.Item1, traffic, erlangColumn.Item2);
+        return SaveResult(result, data);
+    }
+
+    private GeneralResult SaveResult(Result result, General data)
+    {
+        _generalResult.Results.Add(result);
+        if (result.Cost < _generalResult.MinCost)
+        {
+            _generalResult.MinCost = result.Cost;
+            _generalResult.BestSolution = data.X;
+        }
+
+        return _generalResult;
     }
     
     private static IEnumerable<short> GenerateTestX(int numberOfProfiles)
@@ -78,16 +107,16 @@ public class VideoDimensioning : IVideoDimensioning
         var random = new Random();
 
         return Enumerable.Range(1, numberOfProfiles)
-            .Select(i => Convert.ToInt16(random.Next(0, 2))).ToList();
+            .Select(_ => Convert.ToInt16(random.Next(0, 2))).ToList();
     }
 
-    private static IEnumerable<IEnumerable<short>> GeneratePermutations(General data)
+    private IEnumerable<IEnumerable<short>> GeneratePermutations(General data)
     {
         int[] possibleValues = { 0, 1 };
         var numberOfPossibleValues = possibleValues.Length;
         var numberOfProfiles = data.Profiles.Count;
         var permutations =
-            PermutationsGenerator
+            _permutationsGenerator
                 .GeneratePermutations(possibleValues, numberOfPossibleValues, numberOfProfiles);
 
         return permutations;

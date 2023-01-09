@@ -6,13 +6,11 @@ public class General
 {
     public int Delta { get; set; } // koszt przechowywania 1 GB/h
     public int Gamma { get; set; } // koszt transkodowania 1 strumienia/h
-    //public List<short> Epsilon { get; set; } // wybrany wiersz z tabeli Erlanga
     public decimal Eta { get; set; } // dostepnosc systemu w %, np. 99.9%
     public short Ksi { get; set; } // liczba urzadzen dla zalozonej dostepnosci eta 
     public float Zeta { get; set; } // ruch z tabeli Erlanga dla danego wiersza przy zalozonej dostepnosci 
     public IEnumerable<short> X { get; set; } // rozwiazanie
-    public int Lambda { get; set; } // intensywnosc naplywu [liczba zgloszen/s]
-    public int Mi { get; set; } // sredni czas obslugi zgloszenia [s]
+    public float Lambda { get; set; } // intensywnosc naplywu [liczba zgloszen/s]
     public Accessibility Accessibility { get; set; }
     public List<ErlangTraffic> ErlangTable { get; set; }
 

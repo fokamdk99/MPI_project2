@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MPI.project2.Data;
 using MPI.project2.Erlang;
 using MPI.project2.FileReader;
+using MPI.project2.Utilities;
 using MPI.project2.VideoDimensioningMethod;
 
 namespace MPI.projekt2.Tests;
@@ -21,7 +22,8 @@ public class ErlangModelTests
         services
             .AddTransient<IErlangModel, ErlangModel>()
             .AddTransient<IFileHandler, FileHandler>()
-            .AddTransient<IVideoDimensioning, VideoDimensioning>();
+            .AddTransient<IVideoDimensioning, VideoDimensioning>()
+            .AddTransient<IPermutationsGenerator, PermutationsGenerator>();
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -41,9 +43,9 @@ public class ErlangModelTests
         object[] parameters = { Data };
         var traffic = methodInfo!.Invoke(_videoDimensioning!, parameters);
         Assert.That(traffic, Is.Not.Null);
-        _erlangModel!.SetErlangModel((decimal)0.99, Convert.ToDecimal(traffic!.ToString()));
+        _erlangModel!.SetErlangModel((decimal)99.99, Convert.ToDecimal(traffic!.ToString()));
         var blockingProbabilities = _erlangModel.CalculateBlockingProbabilities();
-        Assert.That(blockingProbabilities.Last().Item1, Is.LessThan(1 - 0.99f));
+        Assert.That(blockingProbabilities.Last().Item1, Is.LessThan(100 - 99.99f));
     }
     
     private static IEnumerable<short> GenerateTestX(int numberOfProfiles)

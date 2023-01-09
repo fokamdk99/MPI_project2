@@ -12,13 +12,7 @@ public class FileHandler : IFileHandler
     
     public General ReadDataFromFile()
     {
-        var workingDirectory = Directory.GetCurrentDirectory();
-        var fileDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
-        if (fileDirectory == null)
-        {
-            throw new DirectoryNotFoundException(
-                $"Could not find project directory based on working directory: {workingDirectory}");
-        }
+        var fileDirectory = GetFileDirectory();
 
         var filePath = $"{fileDirectory}/Files/";
         var data = ReadGeneralData(ReadCsv($"{filePath}{GeneralDataFile}"));
@@ -33,6 +27,96 @@ public class FileHandler : IFileHandler
         return data;
     }
 
+    public void WriteResultsToFile(GeneralResult generalResult, General data)
+    {
+        var fileDirectory = GetFileDirectory();
+        var folder = 
+            $"{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}/";
+        var filePath = $"{fileDirectory}/results/{folder}";
+        
+        SaveResults(generalResult.Results, filePath);
+        SaveExperimentParameters(generalResult, filePath);
+        SaveBestSolution(generalResult.BestSolution, filePath);
+    }
+
+    private static void SaveBestSolution(IEnumerable<short> solution, string filePath)
+    {
+        var log = "";
+        log += "index;value\n";
+        foreach (var item in solution.Select((value, index) => new {value, index}))
+        {
+            log += $"{item.index};{item.value}\n";
+        }
+
+        const string fileName = "solution.csv";
+
+        WriteToFile(filePath, fileName, log);
+    }
+    private static void SaveExperimentParameters(GeneralResult generalResult, string filePath)
+    {
+        var log = "";
+
+        log += $"Delta;{generalResult.Delta}\n";
+        log += $"Gamma;{generalResult.Gamma}\n";
+        log += $"Eta;{generalResult.Eta}\n";
+        log += $"Lambda;{generalResult.Lambda}\n";
+
+        const string fileName = "parameters.csv";
+
+        WriteToFile(filePath, fileName, log);
+    }
+    
+    private static void SaveResults(List<Result> list, string filePath)
+    {
+        var log = "";
+
+        log += "Cost;NumberOfDevices;CalculatedTraffic;ErlangTraffic\n";
+        
+        foreach (var t in list)
+        {
+            var tmp = t.Cost + ";" + t.NumberOfDevices + ";" + t.CalculatedTraffic + ";" + t.ErlangTraffic + "\n";
+            log += tmp;
+        }
+        log += "\n";
+
+        const string fileName = "results.csv";
+
+        WriteToFile(filePath, fileName, log);
+    }
+    
+    private static void WriteToFile(string filePath, string fileName, string log)
+    {
+        if (!Directory.Exists(filePath))
+        {
+            Directory.CreateDirectory(filePath);
+        }
+        
+        var file = filePath + fileName;
+        if (!File.Exists(file))
+        {
+            using var sw = File.CreateText(file);
+            sw.WriteLine(log);
+        }
+        else
+        {
+            using var sw = File.AppendText(file);
+            sw.WriteLine(log);
+        }
+    }
+
+    private static string GetFileDirectory()
+    {
+        var workingDirectory = Directory.GetCurrentDirectory();
+        var fileDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
+        if (fileDirectory == null)
+        {
+            throw new DirectoryNotFoundException(
+                $"Could not find project directory based on working directory: {workingDirectory}");
+        }
+
+        return fileDirectory;
+    }
+
     private static IEnumerable<string> ReadCsv(string filePath)
     {
         return File.ReadLines(filePath);
@@ -45,7 +129,7 @@ public class FileHandler : IFileHandler
         {
             Delta = Convert.ToInt32(values.ElementAt(0)),
             Gamma = Convert.ToInt32(values.ElementAt(1)),
-            Lambda = Convert.ToInt32(values.ElementAt(2))
+            Lambda = float.Parse(values.ElementAt(2))
         };
 
         var blockingProbability = Convert.ToDecimal(values.ElementAt(3));
