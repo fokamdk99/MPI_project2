@@ -46,7 +46,7 @@ public class PermutationsGenerator : IPermutationsGenerator
         }
     }
     
-    private static IEnumerable<int> GetHighestQualityProfiles(General data)
+    public IEnumerable<int> GetHighestQualityProfiles(General data)
     {
         var highestQualityProfiles = data.Profiles
             .Select((p, profileIndex) => new

@@ -6,6 +6,9 @@ public class Profile
     public int ProfileId { get; set; }
     public float Size { get; set; } // unit: GB
     public int ProfileQuality { get; set; }
+    public float StorageCost { get; set; }
+    public float TranscodingCost { get; set; }
+    public float AnnealingCoefficient { get; set; }
 
     public Profile(int profileId,
         int contentId, 

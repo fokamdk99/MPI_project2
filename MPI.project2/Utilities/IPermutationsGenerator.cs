@@ -8,4 +8,5 @@ public interface IPermutationsGenerator
         int arrayLength);
 
     void SetPermutationsGenerator(General data);
+    IEnumerable<int> GetHighestQualityProfiles(General data);
 }
