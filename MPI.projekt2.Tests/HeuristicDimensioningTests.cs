@@ -1,9 +1,8 @@
-﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MPI.project2.Data;
 using MPI.project2.Erlang;
 using MPI.project2.FileReader;
-using MPI.project2.HeurisitcVideoDimenioning;
+using MPI.project2.HeurisitcVideoDimensioning;
 using MPI.project2.Utilities;
 using MPI.project2.VideoDimensioningMethod;
 

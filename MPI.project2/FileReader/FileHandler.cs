@@ -1,5 +1,6 @@
 ﻿using MPI.project2.Data;
 using MPI.Project2.Data;
+using MPI.project2.HeurisitcVideoDimensioning;
 
 namespace MPI.project2.FileReader;
 
@@ -27,6 +28,40 @@ public class FileHandler : IFileHandler
         return data;
     }
 
+    public void WriteHeuristicResultsToFile(HeuristicDimensioning.HeuristicResults heuristicResults, GeneralResult generalResult)
+    {
+        var fileDirectory = GetFileDirectory();
+        var folder = 
+            $"{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}/";
+        var filePath = $"{fileDirectory}/results/heuristics/{folder}";
+        SaveHeuristicResults(heuristicResults, filePath);
+        SaveExperimentParameters(generalResult, filePath);
+    }
+
+    public void SaveHeuristicResults(HeuristicDimensioning.HeuristicResults heuristicResults, string filePath)
+    {
+        var log = "";
+
+        log += "profileId;isTranscoded\n";
+        
+        foreach (var p in heuristicResults.StoredProfiles)
+        {
+            var tmp = p.ProfileId + ";" + "0" + "\n";
+            log += tmp;
+        }
+        
+        foreach (var p in heuristicResults.TranscodedProfiles)
+        {
+            var tmp = p.ProfileId + ";" + "1" + "\n";
+            log += tmp;
+        }
+        
+        log += "\n";
+
+        const string fileName = "results.csv";
+
+        WriteToFile(filePath, fileName, log);
+    }
     public void WriteResultsToFile(GeneralResult generalResult, General data)
     {
         var fileDirectory = GetFileDirectory();

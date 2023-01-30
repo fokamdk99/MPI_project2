@@ -1,26 +1,36 @@
 ﻿using MPI.project2.Data;
+using MPI.project2.FileReader;
 using MPI.project2.Utilities;
 using MPI.project2.VideoDimensioningMethod;
 
-namespace MPI.project2.HeurisitcVideoDimenioning;
+namespace MPI.project2.HeurisitcVideoDimensioning;
 
 public class HeuristicDimensioning : IVideoDimensioning
 {
     private readonly IPermutationsGenerator _permutationsGenerator;
     private HeuristicResults _heuristicResults;
-    
+    private readonly IFileHandler _fileHandler;
+    private GeneralResult _generalResult;
 
-    public HeuristicDimensioning(IPermutationsGenerator permutationsGenerator)
+    public HeuristicDimensioning(IPermutationsGenerator permutationsGenerator, 
+        IFileHandler fileHandler)
     {
         _heuristicResults = new HeuristicResults();
         _permutationsGenerator = permutationsGenerator;
-        
+        _fileHandler = fileHandler;
+        _generalResult = new GeneralResult();
     }
 
     public void Run(General data)
     {
         _heuristicResults = DivideVideos(data);
         SimmulatedAnnealing(data);
+        _generalResult.SetGeneralResult(data.Delta,
+            data.Gamma,
+            data.Eta,
+            data.Lambda);
+        
+        _fileHandler.WriteHeuristicResultsToFile(_heuristicResults, _generalResult);
     }
 
     // przejedz przez wszystkie filmy i sprawdz co sie bardziej oplaca
@@ -48,6 +58,8 @@ public class HeuristicDimensioning : IVideoDimensioning
         }
         
         storedProfiles.AddRange(_heuristicResults.HighestQualityProfiles);
+        
+        
     }
 
     // podziel wideo na dwie listy: przechowywania oraz transkodowania
