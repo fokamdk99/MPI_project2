@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MPI.project2.Erlang;
 using MPI.project2.FileReader;
+using MPI.project2.HeurisitcVideoDimensioning;
 using MPI.project2.Utilities;
 using MPI.project2.VideoDimensioningMethod;
 
@@ -13,7 +14,7 @@ namespace MPI.project2
             var services = new ServiceCollection();
             services
                 .AddTransient<IErlangModel, ErlangModel>()
-                .AddTransient<IVideoDimensioning, VideoDimensioning>()
+                .AddTransient<IVideoDimensioning, HeuristicDimensioning>()
                 .AddTransient<IFileHandler, FileHandler>()
                 .AddTransient<IPermutationsGenerator, PermutationsGenerator>();
 

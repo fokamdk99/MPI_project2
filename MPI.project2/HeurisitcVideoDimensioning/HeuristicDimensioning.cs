@@ -40,6 +40,7 @@ public class HeuristicDimensioning : IVideoDimensioning
     {
         var storedProfiles = _heuristicResults.StoredProfiles;
         var transcodedProfiles = _heuristicResults.TranscodedProfiles;
+        storedProfiles = storedProfiles.OrderBy(p => p.AnnealingCoefficient).ToList();
         foreach (var profile in storedProfiles)
         {
             var relatedContent = data.Contents.First(x => x.ContentId == profile.ContentId); 
@@ -57,7 +58,7 @@ public class HeuristicDimensioning : IVideoDimensioning
             }
         }
         
-        storedProfiles.AddRange(_heuristicResults.HighestQualityProfiles);
+        _heuristicResults.StoredProfiles.AddRange(_heuristicResults.HighestQualityProfiles);
         
         
     }
